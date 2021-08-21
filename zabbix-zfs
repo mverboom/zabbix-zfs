@@ -13,13 +13,13 @@ def getinfo(cmd):
    return result.stdout.decode("utf-8")
 
 data = [] 
-result = getinfo("/sbin/zfs list -p -r -H -o name,available,usedbydataset,usedbysnapshots,usedchild,refcompressratio,quota,refquota")
+result = getinfo("/sbin/zfs list -p -r -H -o name,available,usedbydataset,usedbysnapshots,refcompressratio,quota,refquota")
 for line in result.splitlines():
-   (name, avail, usedds, usedsnap, usedchild, compress, quota, refquota) = line.split()
+   (name, avail, usedds, usedsnap, compress, quota, refquota) = line.split()
    if (quota == '-'):
       quota = 0
    if (refquota == '-'):
       refquota = 0
-   data.append({ "name": name, "available": int(avail), "usedds": int(usedds), "usedsnapshot": int(usedsnap), "usedchild": int(usedchild), "compress": float(compress), "quota": int(quota), "refquota": int(refquota) })
+   data.append({ "name": name, "available": int(avail), "usedds": int(usedds), "usedsnapshot": int(usedsnap), "compress": float(compress), "quota": int(quota), "refquota": int(refquota) })
 
 print(json.dumps({"data": data}))
