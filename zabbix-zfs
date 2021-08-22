@@ -18,6 +18,7 @@ for line in result.splitlines():
    (name, avail, usedds, usedsnap, usedbyrefreservation, compress, reservation, quota) = line.split()
    if (quota == '-'):
       quota = 0
-      data.append({ "name": name, "available": int(avail), "usedds": int(usedds), "usedsnapshot": int(usedsnap), "usedreservation": int(usedbyrefreservation), "compress": float(compress), "reservation": int(reservation), "quota": int(quota) })
+
+   data.append({ "name": name, "available": int(avail), "usedds": int(usedds), "usedsnapshot": int(usedsnap), "usedreservation": int(usedbyrefreservation), "compress": float(compress), "reservation": int(reservation), "quota": int(quota) })
 
 print(json.dumps({"data": data}))
