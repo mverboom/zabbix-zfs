@@ -25,10 +25,12 @@ def dataset():
 
 def pool():
     data = [] 
-    result = getinfo("/sbin/zpool list -p -H -o name,size,allocated,free,fragmentation,health")
+    result = getinfo("/sbin/zpool list -p -H -o name,size,allocated,free,fragmentation,health,checkpoint")
     for line in result.splitlines():
-       (name, size, used, free, fragmentation, health) = line.split()
-       data.append({ "name": name, "size": int(size), "used": int(used), "free": int(free), "fragmentation": int(fragmentation), "health": health })
+       (name, size, used, free, fragmentation, health, checkpoint) = line.split()
+       if (checkpoint == '-'):
+          checkpoint = 0
+       data.append({ "name": name, "size": int(size), "used": int(used), "free": int(free), "fragmentation": int(fragmentation), "health": health, "checkpoint": int(checkpoint) })
     
     print(json.dumps({"data": data}))
 
