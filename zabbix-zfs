@@ -19,7 +19,6 @@ def arc():
     f.readline()
     for line in f:
         items = line.split()
-        print(items[2])
         data[items[0]] = int(items[2])
     f.close()
     print(json.dumps({"data": data}))
