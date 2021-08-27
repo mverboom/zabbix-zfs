@@ -12,6 +12,18 @@ def getinfo(cmd):
     
     return result.stdout.decode("utf-8")
 
+def arc():
+    data = {} 
+    f = open("/proc/spl/kstat/zfs/arcstats", "r")
+    f.readline()
+    f.readline()
+    for line in f:
+        items = line.split()
+        print(items[2])
+        data[items[0]] = int(items[2])
+    f.close()
+    print(json.dumps({"data": data}))
+
 def dataset():
     data = [] 
     result = getinfo("/sbin/zfs list -p -r -H -o name,available,usedbydataset,usedbysnapshots,usedbyrefreservation,refcompressratio,refreservation,refquota")
@@ -45,6 +57,8 @@ def main():
         pool()
     elif sys.argv[1] == "ds":
         dataset()
+    elif sys.argv[1] == "arc":
+        arc()
 
 if __name__ == "__main__":
     main()
