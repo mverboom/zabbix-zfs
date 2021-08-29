@@ -41,7 +41,13 @@ def pool():
        (name, size, used, free, fragmentation, health, checkpoint) = line.split()
        if (checkpoint == '-'):
           checkpoint = 0
-       data.append({ "name": name, "size": int(size), "used": int(used), "free": int(free), "fragmentation": int(fragmentation), "health": health, "checkpoint": int(checkpoint) })
+       f = open("/proc/spl/kstat/zfs/main/io", "r")
+       f.readline()
+       f.readline()
+       (nread, nwritten, reads, writes, wtime, wlentime, wupdate, rtime, rlentime, rupdate, wcnt, rcnt) = f.readline().split()
+       f.close()
+       data.append({ "name": name, "size": int(size), "used": int(used), "free": int(free), "fragmentation": int(fragmentation), "health": health, "checkpoint": int(checkpoint), "nread": int(nread), "nwritten": int(nwritten), "reads": int(reads), "writes": int(writes), "wtime": int(wtime), "wlentime": int(wlentime), "wupdate": int(wupdate), "rtime": int(rtime), "rlentime": int(rlentime), "rupdate": int(rupdate), "wcnt": int(wcnt), "rcnt": int(rcnt) })
+
     
     print(json.dumps({"data": data}))
 
