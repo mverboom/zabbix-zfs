@@ -43,6 +43,7 @@ def pool():
     for line in result.splitlines():
         if poolname != "" and line.startswith("errors: "):
             poolerror[poolname] = line.split(" ")[1]
+            poolname = ""
         if line.startswith("  pool: "):
             poolname = line.split(": ")[1]
 
