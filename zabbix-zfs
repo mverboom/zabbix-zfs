@@ -52,7 +52,7 @@ def pool():
        (name, size, used, free, fragmentation, health, checkpoint) = line.split()
        if (checkpoint == '-'):
           checkpoint = 0
-       f = open(f'/proc/spl/kstat/zfs/{name}/io', "r")
+       f = open(f'/proc/spl/kstat/zfs/{name}/iostats', "r")
        f.readline()
        f.readline()
        (nread, nwritten, reads, writes, wtime, wlentime, wupdate, rtime, rlentime, rupdate, wcnt, rcnt) = f.readline().split()
