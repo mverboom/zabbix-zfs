@@ -58,6 +58,18 @@ def pool():
             poolname = line.split(": ")[1]
 
     try:
+        result = getinfo("/sbin/zpool upgrade")
+    except Exception:
+        return 1
+    poolupgrade = {}
+    upgradefound = 0
+    for line in result.splitlines():
+        if upgradefound == 0 and line.startswith("---------------"):
+            upgradefound = 1
+        elif upgradefound == 1 and not line.startswith("  ") and line != "":
+            poolupgrade[line] = 1
+
+    try:
         result = getinfo("/sbin/zpool list -p -H -o name,size,allocated,free,fragmentation,health,checkpoint")
     except Exception:
         return 1
@@ -68,14 +80,17 @@ def pool():
        errors = 0
        if name in poolerror:
           errors = poolerror[name]
+       upgrade = 0
+       if name in poolupgrade:
+          upgrade = poolupgrade[name]
 
-       data.append({ "name": name, "size": int(size), "used": int(used), "free": int(free), "fragmentation": int(fragmentation), "health": health, "checkpoint": int(checkpoint), "errors": errors })
+       data.append({ "name": name, "size": int(size), "used": int(used), "free": int(free), "fragmentation": int(fragmentation), "health": health, "checkpoint": int(checkpoint), "errors": errors, "upgrade": upgrade })
        
     print(json.dumps({"data": data}))
     return 0
 
 def usage():
-    print("zabbix-zfs <pool|ds>")
+    print("zabbix-zfs <pool|ds|arc>")
     sys.exit()
 
 def main():
