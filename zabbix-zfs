@@ -4,6 +4,17 @@
 import subprocess
 import json
 import sys
+import os
+import fcntl
+
+fh = 0
+def run_once():
+   global fh
+   fh = open(os.path.realpath(__file__), 'r')
+   try:
+      fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+   except BlockingIOError:
+      os._exit(0)
 
 def getinfo(cmd):
     result = subprocess.run(cmd.split(" "), capture_output=True)
@@ -94,6 +105,7 @@ def usage():
     sys.exit()
 
 def main():
+    run_once()
     if len(sys.argv) != 2:
         usage()
     if sys.argv[1] == "pool":
