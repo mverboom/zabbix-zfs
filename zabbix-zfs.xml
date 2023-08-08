@@ -1,0 +1,1192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>6.4</version>
+    <template_groups>
+        <template_group>
+            <uuid>7df96b18c230490a9a0a9e2307226338</uuid>
+            <name>Templates</name>
+        </template_group>
+    </template_groups>
+    <templates>
+        <template>
+            <uuid>3bf118f343e148168a8338cc0f62f6b1</uuid>
+            <template>Template ZFS</template>
+            <name>Template ZFS</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <items>
+                <item>
+                    <uuid>0710664866774ad48e169c4acd1a1b40</uuid>
+                    <name>arc hits</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.arc.hits</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.hits</parameter>
+                            </parameters>
+                        </step>
+                        <step>
+                            <type>SIMPLE_CHANGE</type>
+                            <parameters>
+                                <parameter/>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>1a326572897b4160a12c58b33a31fa14</uuid>
+                    <name>arc hits percentage</name>
+                    <type>CALCULATED</type>
+                    <key>zfs.arc.hits.percentage</key>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <params>(last(//zfs.arc.hits) * (1 - count(//zfs.arc.hits,#1,&quot;eq&quot;,0)) * 100 ) / (last(//zfs.arc.requests) + count(//zfs.arc.requests,#1,&quot;eq&quot;,0))</params>
+                </item>
+                <item>
+                    <uuid>6600567ac69b4ff2ae88b9b228ef7327</uuid>
+                    <name>zfs arc master item</name>
+                    <key>zfs.arc.master</key>
+                    <history>1h</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <triggers>
+                        <trigger>
+                            <uuid>b858984cc9944fc2bccf79493a60f8c0</uuid>
+                            <expression>nodata(/Template ZFS/zfs.arc.master,10m)=1</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>nodata(/Template ZFS/zfs.arc.master,2m)=0</recovery_expression>
+                            <name>ZFS no arc information</name>
+                            <priority>DISASTER</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <uuid>55fb9011f4f44bf0a32e2f800db7e772</uuid>
+                    <name>arc misses</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.arc.misses</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.misses</parameter>
+                            </parameters>
+                        </step>
+                        <step>
+                            <type>SIMPLE_CHANGE</type>
+                            <parameters>
+                                <parameter/>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>6bbb809a3eea49699573c4229c43ad15</uuid>
+                    <name>arc misses percentage</name>
+                    <type>CALCULATED</type>
+                    <key>zfs.arc.misses.percentage</key>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <params>(last(//zfs.arc.misses) * (1 - count(//zfs.arc.misses,#1,&quot;eq&quot;,0)) * 100 ) / (last(//zfs.arc.requests) + count(//zfs.arc.requests,#1,&quot;eq&quot;,0))</params>
+                </item>
+                <item>
+                    <uuid>c7656bce3d8a43898c5037241e3333bc</uuid>
+                    <name>arc requests</name>
+                    <type>CALCULATED</type>
+                    <key>zfs.arc.requests</key>
+                    <params>last(//zfs.arc.hits) + last(//zfs.arc.misses)</params>
+                </item>
+                <item>
+                    <uuid>097c2eb119564f46bd323dc98f264bd8</uuid>
+                    <name>arc size</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.arc.size</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.size</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>a38f23b9dbbc4e68941a3460ed4fffe1</uuid>
+                    <name>arc size compressed</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.arc.size.compressed</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.compressed_size</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>2fa7ba3edec74632b42aef9f9df4864c</uuid>
+                    <name>arc target size</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.arc.size.target</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.c</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>d103604f1c4b4370911554ad20702b9f</uuid>
+                    <name>arc target maximum size</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.arc.size.target.max</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.c_max</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>ca55d588a729458ba65f5c433df7cf13</uuid>
+                    <name>arc target minimum size</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.arc.size.target.min</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.c_min</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>e576706657004a20a55eb3bd40117ed8</uuid>
+                    <name>arc size uncompressed</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.arc.size.uncompressed</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.uncompressed_size</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>1c9dc48dede8422386af1a271c8358a2</uuid>
+                    <name>zfs ds master item</name>
+                    <key>zfs.ds.master</key>
+                    <history>1h</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <triggers>
+                        <trigger>
+                            <uuid>3ec1af3cf52348398521b53486684d60</uuid>
+                            <expression>nodata(/Template ZFS/zfs.ds.master,10m)=1</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>nodata(/Template ZFS/zfs.ds.master,2m)=0</recovery_expression>
+                            <name>ZFS no dataset information</name>
+                            <priority>DISASTER</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <uuid>0d95fffa758a4d8498726f57388a921e</uuid>
+                    <name>l2arc hits</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.l2arc.hits</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.l2_hits</parameter>
+                            </parameters>
+                        </step>
+                        <step>
+                            <type>SIMPLE_CHANGE</type>
+                            <parameters>
+                                <parameter/>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>b7c198b6ba8e4af296e169bcbfeed70d</uuid>
+                    <name>l2arc hits percentage</name>
+                    <type>CALCULATED</type>
+                    <key>zfs.l2arc.hits.percentage</key>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <params>(last(//zfs.l2arc.hits) * (1 - count(//zfs.l2arc.hits,#1,&quot;eq&quot;,0)) * 100 ) / (last(//zfs.l2arc.requests) + count(//zfs.l2arc.requests,#1,&quot;eq&quot;,0))</params>
+                </item>
+                <item>
+                    <uuid>6ada05f3d88d4208a38e09d192e91d33</uuid>
+                    <name>l2arc misses</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.l2arc.misses</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.l2_misses</parameter>
+                            </parameters>
+                        </step>
+                        <step>
+                            <type>SIMPLE_CHANGE</type>
+                            <parameters>
+                                <parameter/>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>74c5d18d4ef94e86ba74af2607ddc5f6</uuid>
+                    <name>l2arc requests</name>
+                    <type>CALCULATED</type>
+                    <key>zfs.l2arc.requests</key>
+                    <params>last(//zfs.l2arc.hits) + last(//zfs.l2arc.misses)</params>
+                </item>
+                <item>
+                    <uuid>2a929f02ac594d5899ea77da742b3ad0</uuid>
+                    <name>l2arc size</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.l2arc.size</key>
+                    <delay>0</delay>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data.l2_size</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>zfs.arc.master</key>
+                    </master_item>
+                </item>
+                <item>
+                    <uuid>c36ec4a288f2489a9da11d9351de11ef</uuid>
+                    <name>zfs pool master item</name>
+                    <key>zfs.pool.master</key>
+                    <history>1h</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <triggers>
+                        <trigger>
+                            <uuid>c67a404c9820481db464b80cd45af00a</uuid>
+                            <expression>nodata(/Template ZFS/zfs.pool.master,10m)=1</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>nodata(/Template ZFS/zfs.pool.master,2m)=0</recovery_expression>
+                            <name>ZFS no pool information</name>
+                            <priority>DISASTER</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <uuid>6e0fb58adce342d38335fc025a3a5453</uuid>
+                    <name>l2arc misses percentage</name>
+                    <type>CALCULATED</type>
+                    <key>zfsl2arc.misses.percentage</key>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <params>(last(//zfs.l2arc.misses) * (1 - count(//zfs.l2arc.misses,#1,&quot;eq&quot;,0)) * 100 ) / (last(//zfs.l2arc.requests) + count(//zfs.l2arc.requests,#1,&quot;eq&quot;,0))</params>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <uuid>ba85c85884aa42d6881678f3ddbbd17c</uuid>
+                    <name>zfs ds discovery</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.ds.discovery</key>
+                    <delay>0</delay>
+                    <lifetime>10d</lifetime>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>7389848e4f1e4ed5a9a060bbaa354b0b</uuid>
+                            <name>{#ZFSDSNAME} available</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ds.available[{#ZFSDSNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSDSNAME}&quot;)].available.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.ds.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>1076ce7c662547448313819366a591ba</uuid>
+                            <name>{#ZFSDSNAME} compression ratio</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ds.compression[{#ZFSDSNAME}]</key>
+                            <delay>0</delay>
+                            <value_type>FLOAT</value_type>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSDSNAME}&quot;)].compression.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.ds.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>95b1fc79afa046439a45173df385631d</uuid>
+                            <name>{#ZFSDSNAME} quota</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ds.quota[{#ZFSDSNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSDSNAME}&quot;)].quota.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.ds.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>b928d2ca4d6744d392ba9f4629342038</uuid>
+                            <name>{#ZFSDSNAME} reservation</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ds.reservation[{#ZFSDSNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSDSNAME}&quot;)].reservation.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.ds.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>886d0ad38c2e4611b4d43402d6832c14</uuid>
+                            <name>{#ZFSDSNAME} used after compression</name>
+                            <type>CALCULATED</type>
+                            <key>zfs.ds.usedactual[{#ZFSDSNAME}]</key>
+                            <units>B</units>
+                            <params>last(//zfs.ds.usedds[{#ZFSDSNAME}]) / last(//zfs.ds.compression[{#ZFSDSNAME}])</params>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>3564b095afbd4e0ab37b414dd5a7ea9b</uuid>
+                            <name>{#ZFSDSNAME} used dataset</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ds.usedds[{#ZFSDSNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSDSNAME}&quot;)].usedds.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.ds.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>4f9effd00e2646f190428d11d38400cf</uuid>
+                            <name>{#ZFSDSNAME} used reservation</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ds.usedreservation[{#ZFSDSNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSDSNAME}&quot;)].usedreservation.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.ds.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>7367f99bfb4a4058b284c8fde9cf7420</uuid>
+                            <name>{#ZFSDSNAME} used snapshot</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ds.usedsnapshot[{#ZFSDSNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSDSNAME}&quot;)].usedsnapshot.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.ds.master</key>
+                            </master_item>
+                        </item_prototype>
+                    </item_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <uuid>b2d8944d53844dd0b5a73f4b0f8013cb</uuid>
+                            <name>zfs space efficiency {#ZFSDSNAME}</name>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>FFFF00</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.ds.usedactual[{#ZFSDSNAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <color>BF00FF</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.ds.usedds[{#ZFSDSNAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>3</sortorder>
+                                    <drawtype>BOLD_LINE</drawtype>
+                                    <color>00FFFF</color>
+                                    <yaxisside>RIGHT</yaxisside>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.ds.compression[{#ZFSDSNAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <uuid>8a8099da3e0541e7a15a8334ef35101e</uuid>
+                            <name>zfs space {#ZFSDSNAME}</name>
+                            <type>STACKED</type>
+                            <ymin_type_1>FIXED</ymin_type_1>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>FFEBEE</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.ds.usedds[{#ZFSDSNAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <color>F7941D</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.ds.usedsnapshot[{#ZFSDSNAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>3</sortorder>
+                                    <color>FC6EA3</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.ds.usedreservation[{#ZFSDSNAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>4</sortorder>
+                                    <color>00FF00</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.ds.available[{#ZFSDSNAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                    <master_item>
+                        <key>zfs.ds.master</key>
+                    </master_item>
+                    <lld_macro_paths>
+                        <lld_macro_path>
+                            <lld_macro>{#ZFSDSNAME}</lld_macro>
+                            <path>$.name</path>
+                        </lld_macro_path>
+                    </lld_macro_paths>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+                <discovery_rule>
+                    <uuid>3974c21ef00943f2a06359e315f0d1d2</uuid>
+                    <name>zfs pool discovery</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.pool.discovery</key>
+                    <delay>0</delay>
+                    <lifetime>10d</lifetime>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>ab13d6d172c8494ca5a8944120856ac8</uuid>
+                            <name>{#ZFSPOOLNAME} checkpoint</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.pool.checkpoint[{#ZFSPOOLNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSPOOLNAME}&quot;)].checkpoint.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.pool.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>9319977472044b73866cd002f8ab9763</uuid>
+                            <name>{#ZFSPOOLNAME} errors</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.pool.errors[{#ZFSPOOLNAME}]</key>
+                            <delay>0</delay>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSPOOLNAME}&quot;)].errors.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.pool.master</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>d46e54bc125d40ca986a2fbbee8b1b3f</uuid>
+                                    <expression>last(/Template ZFS/zfs.pool.errors[{#ZFSPOOLNAME}]) &gt; 0</expression>
+                                    <name>zpool {#ZFSPOOLNAME} has errors</name>
+                                    <priority>HIGH</priority>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>14d8faa8be7747de93157cacfd1e93c5</uuid>
+                            <name>{#ZFSPOOLNAME} fragmentation</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.pool.fragmentation[{#ZFSPOOLNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSPOOLNAME}&quot;)].fragmentation.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.pool.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>f4701aa0c4b74ed18b9d428f9f5de7d2</uuid>
+                            <name>{#ZFSPOOLNAME} free</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.pool.free[{#ZFSPOOLNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSPOOLNAME}&quot;)].free.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.pool.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>4fa8a22cfed24371a7f26ec05f16a97c</uuid>
+                            <name>{#ZFSPOOLNAME} health</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.pool.health[{#ZFSPOOLNAME}]</key>
+                            <delay>0</delay>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSPOOLNAME}&quot;)].health.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.pool.master</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>aff86f2a9c4541338a66208deed89ed0</uuid>
+                                    <expression>last(/Template ZFS/zfs.pool.health[{#ZFSPOOLNAME}])&lt;&gt;&quot;ONLINE&quot;</expression>
+                                    <name>zpool {#ZFSPOOLNAME} health problem: {#ZFSPOOLHEALTH}</name>
+                                    <priority>HIGH</priority>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>bafe98cb102041829859d12714342c61</uuid>
+                            <name>{#ZFSPOOLNAME} size</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.pool.size[{#ZFSPOOLNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSPOOLNAME}&quot;)].size.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.pool.master</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>c0eef02616eb4a39bba4dcca800b0c2c</uuid>
+                            <name>{#ZFSPOOLNAME} upgrade</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.pool.upgrade[{#ZFSPOOLNAME}]</key>
+                            <delay>0</delay>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSPOOLNAME}&quot;)].upgrade.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.pool.master</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>7c69d117aa3f4280b218315efcb593df</uuid>
+                                    <expression>last(/Template ZFS/zfs.pool.upgrade[{#ZFSPOOLNAME}]) &gt; 0</expression>
+                                    <name>zpool {#ZFSPOOLNAME} can be upgraded</name>
+                                    <priority>INFO</priority>
+                                    <manual_close>YES</manual_close>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>1ad8f192c6514f699d53c4ed77f1397e</uuid>
+                            <name>{#ZFSPOOLNAME} used</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.pool.used[{#ZFSPOOLNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSPOOLNAME}&quot;)].used.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.pool.master</key>
+                            </master_item>
+                        </item_prototype>
+                    </item_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <uuid>797e8ac07cd84b0dbdc036c7d2ba3837</uuid>
+                            <name>zpool fragmentation {#ZFSPOOLNAME}</name>
+                            <height>300</height>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>199C0D</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.pool.fragmentation[{#ZFSPOOLNAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <uuid>6e7f68bf8ff742d28abc8765b700dd8b</uuid>
+                            <name>zpool space {#ZFSPOOLNAME} ({#ZFSPOOLHEALTH})</name>
+                            <height>300</height>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <drawtype>FILLED_REGION</drawtype>
+                                    <color>199C0D</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.pool.size[{#ZFSPOOLNAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <drawtype>FILLED_REGION</drawtype>
+                                    <color>F63100</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.pool.used[{#ZFSPOOLNAME}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>3</sortorder>
+                                    <drawtype>FILLED_REGION</drawtype>
+                                    <color>FFFF00</color>
+                                    <item>
+                                        <host>Template ZFS</host>
+                                        <key>zfs.pool.checkpoint[{#ZFSPOOLNAME}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                    <master_item>
+                        <key>zfs.pool.master</key>
+                    </master_item>
+                    <lld_macro_paths>
+                        <lld_macro_path>
+                            <lld_macro>{#ZFSPOOLHEALTH}</lld_macro>
+                            <path>$.health</path>
+                        </lld_macro_path>
+                        <lld_macro_path>
+                            <lld_macro>{#ZFSPOOLNAME}</lld_macro>
+                            <path>$.name</path>
+                        </lld_macro_path>
+                    </lld_macro_paths>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+            </discovery_rules>
+            <dashboards>
+                <dashboard>
+                    <uuid>ac05daa8e05141f9960e13234e113f13</uuid>
+                    <name>ZFS ARC</name>
+                    <pages>
+                        <page>
+                            <widgets>
+                                <widget>
+                                    <type>graph</type>
+                                    <width>12</width>
+                                    <height>5</height>
+                                    <fields>
+                                        <field>
+                                            <type>GRAPH</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>arc size</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                                <widget>
+                                    <type>graph</type>
+                                    <y>5</y>
+                                    <width>12</width>
+                                    <height>5</height>
+                                    <fields>
+                                        <field>
+                                            <type>GRAPH</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>arc hitrate</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                                <widget>
+                                    <type>graph</type>
+                                    <y>10</y>
+                                    <width>12</width>
+                                    <height>5</height>
+                                    <fields>
+                                        <field>
+                                            <type>GRAPH</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>arc compression</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                                <widget>
+                                    <type>graph</type>
+                                    <x>12</x>
+                                    <y>5</y>
+                                    <width>12</width>
+                                    <height>5</height>
+                                    <fields>
+                                        <field>
+                                            <type>GRAPH</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>l2arc hitrate</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                                <widget>
+                                    <type>graph</type>
+                                    <x>12</x>
+                                    <width>12</width>
+                                    <height>5</height>
+                                    <fields>
+                                        <field>
+                                            <type>GRAPH</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>l2arc size</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                            </widgets>
+                        </page>
+                    </pages>
+                </dashboard>
+                <dashboard>
+                    <uuid>3643fd793f5b4958a19051edb3837037</uuid>
+                    <name>ZFS Datasets</name>
+                    <pages>
+                        <page>
+                            <widgets>
+                                <widget>
+                                    <type>graphprototype</type>
+                                    <x>12</x>
+                                    <width>12</width>
+                                    <height>32</height>
+                                    <fields>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>columns</name>
+                                            <value>1</value>
+                                        </field>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>rows</name>
+                                            <value>16</value>
+                                        </field>
+                                        <field>
+                                            <type>GRAPH_PROTOTYPE</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>zfs space efficiency {#ZFSDSNAME}</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                                <widget>
+                                    <type>graphprototype</type>
+                                    <name>Datasets</name>
+                                    <width>12</width>
+                                    <height>32</height>
+                                    <fields>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>rows</name>
+                                            <value>16</value>
+                                        </field>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>columns</name>
+                                            <value>1</value>
+                                        </field>
+                                        <field>
+                                            <type>GRAPH_PROTOTYPE</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>zfs space {#ZFSDSNAME}</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                            </widgets>
+                        </page>
+                    </pages>
+                </dashboard>
+                <dashboard>
+                    <uuid>6eef7ca9be23449ead12d2037bcf7a59</uuid>
+                    <name>ZFS Pools</name>
+                    <pages>
+                        <page>
+                            <widgets>
+                                <widget>
+                                    <type>graphprototype</type>
+                                    <width>12</width>
+                                    <height>32</height>
+                                    <hide_header>YES</hide_header>
+                                    <fields>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>columns</name>
+                                            <value>1</value>
+                                        </field>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>rows</name>
+                                            <value>16</value>
+                                        </field>
+                                        <field>
+                                            <type>GRAPH_PROTOTYPE</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>zpool space {#ZFSPOOLNAME} ({#ZFSPOOLHEALTH})</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                                <widget>
+                                    <type>graphprototype</type>
+                                    <x>12</x>
+                                    <width>12</width>
+                                    <height>32</height>
+                                    <hide_header>YES</hide_header>
+                                    <fields>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>columns</name>
+                                            <value>1</value>
+                                        </field>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>rows</name>
+                                            <value>16</value>
+                                        </field>
+                                        <field>
+                                            <type>GRAPH_PROTOTYPE</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>zpool fragmentation {#ZFSPOOLNAME}</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                            </widgets>
+                        </page>
+                    </pages>
+                </dashboard>
+            </dashboards>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <uuid>e32c0167341540a7941b8cbeeda29d50</uuid>
+            <name>arc compression</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.arc.size.compressed</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>F63100</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.arc.size.uncompressed</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <uuid>c28ceff9d06a4fb99ebaf6dd03f91df4</uuid>
+            <name>arc hitrate</name>
+            <type>STACKED</type>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>2774A4</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.arc.hits.percentage</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>F7941D</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.arc.misses.percentage</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <uuid>771c7e93898b4362915e1519bf53ab6b</uuid>
+            <name>arc size</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>F63100</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.arc.size</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>2774A4</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.arc.size.compressed</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>3</sortorder>
+                    <color>F7941D</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.arc.size.uncompressed</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <uuid>e7dbbf75a71a47ababf20ca271783165</uuid>
+            <name>l2arc hitrate</name>
+            <type>STACKED</type>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>2774A4</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.l2arc.hits.percentage</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>F7941D</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfsl2arc.misses.percentage</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <uuid>b8853db08aae44358c156131dc9d2a98</uuid>
+            <name>l2arc size</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>FC6EA3</color>
+                    <item>
+                        <host>Template ZFS</host>
+                        <key>zfs.l2arc.size</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
