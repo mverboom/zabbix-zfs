@@ -6,15 +6,20 @@ import json
 import sys
 import os
 import fcntl
+from pathlib import Path
 
 fh = 0
-def run_once():
+
+def run_once(action):
    global fh
-   fh = open(os.path.realpath(__file__), 'r')
+   lck = f'/run/zabbix/zabbix-zfs_{action}'
+   fle = Path(lck)
+   fle.touch(exist_ok=True)
+   fh = open(os.path.realpath(lck), 'r')
    try:
       fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
    except BlockingIOError:
-      os._exit(0)
+      os._exit(1)
 
 def getinfo(cmd):
     result = subprocess.run(cmd.split(" "), capture_output=True)
@@ -48,6 +53,19 @@ def dataset():
        if (quota == '-'):
           quota = 0
        data.append({ "name": name, "available": int(avail), "usedds": int(usedds), "usedsnapshot": int(usedsnap), "usedreservation": int(usedbyrefreservation), "compression": float(compression), "reservation": int(reservation), "quota": int(quota) })
+    
+    print(json.dumps({"data": data}))
+    return 0
+
+def snapshot():
+    data = [] 
+    try:
+        result = getinfo("/sbin/zfs list -p -r -H -t snapshot -o name,used,creation")
+    except Exception:
+        return 1
+    for line in result.splitlines():
+       (name, used, creation) = line.split()
+       data.append({ "name": name, "used": int(used), "creation": int(creation) })
     
     print(json.dumps({"data": data}))
     return 0
@@ -105,15 +123,17 @@ def usage():
     sys.exit()
 
 def main():
-    run_once()
     if len(sys.argv) != 2:
         usage()
+    run_once(sys.argv[1])
     if sys.argv[1] == "pool":
         sys.exit(pool())
     elif sys.argv[1] == "ds":
         sys.exit(dataset())
     elif sys.argv[1] == "arc":
         sys.exit(arc())
+    elif sys.argv[1] == "snapshot":
+        sys.exit(snapshot())
 
 if __name__ == "__main__":
     main()
