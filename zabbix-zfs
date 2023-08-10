@@ -119,7 +119,7 @@ def pool():
     return 0
 
 def usage():
-    print("zabbix-zfs <pool|ds|arc>")
+    print("zabbix-zfs <pool|ds|arc|snapshot>")
     sys.exit()
 
 def main():
