@@ -57,6 +57,19 @@ def dataset():
     print(json.dumps({"data": data}))
     return 0
 
+def snapshot():
+    data = [] 
+    try:
+        result = getinfo("/sbin/zfs list -p -r -H -t snapshot -o name,used,creation")
+    except Exception:
+        return 1
+    for line in result.splitlines():
+       (name, used, creation) = line.split()
+       data.append({ "name": name, "used": int(used), "creation": int(creation) })
+    
+    print(json.dumps({"data": data}))
+    return 0
+
 def pool():
     data = [] 
 
@@ -119,6 +132,8 @@ def main():
         sys.exit(dataset())
     elif sys.argv[1] == "arc":
         sys.exit(arc())
+    elif sys.argv[1] == "snapshot":
+        sys.exit(snapshot())
 
 if __name__ == "__main__":
     main()
