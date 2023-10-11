@@ -1,0 +1,5 @@
+Removed history storage for master items.
+Remove not discovered items after 10 days instead of 30.
+Updates dashboards.
+
+added option to exlude pools from checking snapshots

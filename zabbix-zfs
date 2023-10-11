@@ -57,16 +57,21 @@ def dataset():
     print(json.dumps({"data": data}))
     return 0
 
-def snapshot():
-    data = [] 
-    try:
-        result = getinfo("/sbin/zfs list -p -r -H -t snapshot -o name,used,creation")
-    except Exception:
-        return 1
-    for line in result.splitlines():
-       (name, used, creation) = line.split()
-       data.append({ "name": name, "used": int(used), "creation": int(creation) })
-    
+def snapshot(exludepools):
+    data = []
+    exclude = exludepools.split(",")
+
+    pools = getinfo("/sbin/zpool list -H -o name").split()
+    for pool in pools:
+        if pool not in exclude:
+            try:
+                result = getinfo(f"/sbin/zfs list -p -r -H -t snapshot -o name,used,creation {pool}")
+            except Exception:
+                return 1
+            for line in result.splitlines():
+               (name, used, creation) = line.split()
+               data.append({ "name": name, "used": int(used), "creation": int(creation) })
+            
     print(json.dumps({"data": data}))
     return 0
 
@@ -123,7 +128,7 @@ def usage():
     sys.exit()
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         usage()
     run_once(sys.argv[1])
     if sys.argv[1] == "pool":
@@ -133,7 +138,10 @@ def main():
     elif sys.argv[1] == "arc":
         sys.exit(arc())
     elif sys.argv[1] == "snapshot":
-        sys.exit(snapshot())
+        pools = ""
+        if len(sys.argv) == 3:
+            pools = sys.argv[2]
+        sys.exit(snapshot(pools))
 
 if __name__ == "__main__":
     main()
