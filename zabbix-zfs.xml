@@ -12,6 +12,7 @@
             <uuid>3bf118f343e148168a8338cc0f62f6b1</uuid>
             <template>Template ZFS</template>
             <name>Template ZFS</name>
+            <description>Retrieves zfs information every minute, except for snaphots every 15 minutes.</description>
             <groups>
                 <group>
                     <name>Templates</name>
@@ -334,6 +335,15 @@
                             <priority>DISASTER</priority>
                         </trigger>
                     </triggers>
+                </item>
+                <item>
+                    <uuid>5f3efa593554409aa0c0ad2c03bed48a</uuid>
+                    <name>zfs snapshot master item</name>
+                    <key>zfs.snapshot.master[{$ZFSSNAPSHOTPOOLEXCLUDE}]</key>
+                    <delay>15m</delay>
+                    <history>1h</history>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
                 </item>
                 <item>
                     <uuid>6e0fb58adce342d38335fc025a3a5453</uuid>
@@ -848,7 +858,132 @@
                         </step>
                     </preprocessing>
                 </discovery_rule>
+                <discovery_rule>
+                    <uuid>0bc919ea764e425eac7f0600185ff5eb</uuid>
+                    <name>zfs snapshot discovery</name>
+                    <type>DEPENDENT</type>
+                    <key>zfs.snapshot.discovery</key>
+                    <delay>0</delay>
+                    <lifetime>0</lifetime>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>975001a0877c44be8ec7622eb3f16124</uuid>
+                            <name>{#ZFSSSNAME} check</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ss.check[{#ZFSSSNAME}]</key>
+                            <delay>0</delay>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSSSNAME}&quot;)].name.first()</parameter>
+                                    </parameters>
+                                </step>
+                                <step>
+                                    <type>MATCHES_REGEX</type>
+                                    <parameters>
+                                        <parameter>{$ZFSSNAPSHOTEXCLUDE}</parameter>
+                                    </parameters>
+                                    <error_handler>CUSTOM_VALUE</error_handler>
+                                    <error_handler_params>1</error_handler_params>
+                                </step>
+                                <step>
+                                    <type>IN_RANGE</type>
+                                    <parameters>
+                                        <parameter>1</parameter>
+                                        <parameter>2</parameter>
+                                    </parameters>
+                                    <error_handler>CUSTOM_VALUE</error_handler>
+                                    <error_handler_params>0</error_handler_params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.snapshot.master[{$ZFSSNAPSHOTPOOLEXCLUDE}]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>48f642dc5671402a9066ced6d26ea7e9</uuid>
+                            <name>{#ZFSSSNAME} creation time</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ss.creation[{#ZFSSSNAME}]</key>
+                            <delay>0</delay>
+                            <units>unixtime</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSSSNAME}&quot;)].creation.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.snapshot.master[{$ZFSSNAPSHOTPOOLEXCLUDE}]</key>
+                            </master_item>
+                        </item_prototype>
+                        <item_prototype>
+                            <uuid>c6f891b8fa7e4eb9b1db994104803eb6</uuid>
+                            <name>{#ZFSSSNAME} used snapshot</name>
+                            <type>DEPENDENT</type>
+                            <key>zfs.ss.usedss[{#ZFSSSNAME}]</key>
+                            <delay>0</delay>
+                            <units>B</units>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <parameters>
+                                        <parameter>$.data[?(@.name == &quot;{#ZFSSSNAME}&quot;)].used.first()</parameter>
+                                    </parameters>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>zfs.snapshot.master[{$ZFSSNAPSHOTPOOLEXCLUDE}]</key>
+                            </master_item>
+                        </item_prototype>
+                    </item_prototypes>
+                    <trigger_prototypes>
+                        <trigger_prototype>
+                            <uuid>41680a5a69d84a7b8aec14fe78315f94</uuid>
+                            <expression>now()-last(/Template ZFS/zfs.ss.creation[{#ZFSSSNAME}])&gt;{$ZFSSNAPSHOTAGE} and last(/Template ZFS/zfs.ss.check[{#ZFSSSNAME}])=1</expression>
+                            <name>snapshot too old {#ZFSSSNAME}</name>
+                            <priority>WARNING</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger_prototype>
+                    </trigger_prototypes>
+                    <master_item>
+                        <key>zfs.snapshot.master[{$ZFSSNAPSHOTPOOLEXCLUDE}]</key>
+                    </master_item>
+                    <lld_macro_paths>
+                        <lld_macro_path>
+                            <lld_macro>{#ZFSSSNAME}</lld_macro>
+                            <path>$.name</path>
+                        </lld_macro_path>
+                    </lld_macro_paths>
+                    <preprocessing>
+                        <step>
+                            <type>JSONPATH</type>
+                            <parameters>
+                                <parameter>$.data</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
             </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$ZFSSNAPSHOTAGE}</macro>
+                    <value>1w</value>
+                    <description>Alert if snapshot older than this age.</description>
+                </macro>
+                <macro>
+                    <macro>{$ZFSSNAPSHOTEXCLUDE}</macro>
+                    <value>test</value>
+                    <description>Regex for snapshots to exclude from triggers</description>
+                </macro>
+                <macro>
+                    <macro>{$ZFSSNAPSHOTPOOLEXCLUDE}</macro>
+                    <description>Comma seperated list of pools to exclude from snapshot monitoring</description>
+                </macro>
+            </macros>
             <dashboards>
                 <dashboard>
                     <uuid>ac05daa8e05141f9960e13234e113f13</uuid>
@@ -906,6 +1041,22 @@
                                 <widget>
                                     <type>graph</type>
                                     <x>12</x>
+                                    <width>12</width>
+                                    <height>5</height>
+                                    <fields>
+                                        <field>
+                                            <type>GRAPH</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>l2arc size</name>
+                                            </value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                                <widget>
+                                    <type>graph</type>
+                                    <x>12</x>
                                     <y>5</y>
                                     <width>12</width>
                                     <height>5</height>
@@ -916,22 +1067,6 @@
                                             <value>
                                                 <host>Template ZFS</host>
                                                 <name>l2arc hitrate</name>
-                                            </value>
-                                        </field>
-                                    </fields>
-                                </widget>
-                                <widget>
-                                    <type>graph</type>
-                                    <x>12</x>
-                                    <width>12</width>
-                                    <height>5</height>
-                                    <fields>
-                                        <field>
-                                            <type>GRAPH</type>
-                                            <name>graphid</name>
-                                            <value>
-                                                <host>Template ZFS</host>
-                                                <name>l2arc size</name>
                                             </value>
                                         </field>
                                     </fields>
@@ -948,41 +1083,10 @@
                             <widgets>
                                 <widget>
                                     <type>graphprototype</type>
-                                    <x>12</x>
-                                    <width>12</width>
-                                    <height>32</height>
-                                    <fields>
-                                        <field>
-                                            <type>INTEGER</type>
-                                            <name>columns</name>
-                                            <value>1</value>
-                                        </field>
-                                        <field>
-                                            <type>INTEGER</type>
-                                            <name>rows</name>
-                                            <value>16</value>
-                                        </field>
-                                        <field>
-                                            <type>GRAPH_PROTOTYPE</type>
-                                            <name>graphid</name>
-                                            <value>
-                                                <host>Template ZFS</host>
-                                                <name>zfs space efficiency {#ZFSDSNAME}</name>
-                                            </value>
-                                        </field>
-                                    </fields>
-                                </widget>
-                                <widget>
-                                    <type>graphprototype</type>
                                     <name>Datasets</name>
                                     <width>12</width>
                                     <height>32</height>
                                     <fields>
-                                        <field>
-                                            <type>INTEGER</type>
-                                            <name>rows</name>
-                                            <value>16</value>
-                                        </field>
                                         <field>
                                             <type>INTEGER</type>
                                             <name>columns</name>
@@ -995,6 +1099,37 @@
                                                 <host>Template ZFS</host>
                                                 <name>zfs space {#ZFSDSNAME}</name>
                                             </value>
+                                        </field>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>rows</name>
+                                            <value>16</value>
+                                        </field>
+                                    </fields>
+                                </widget>
+                                <widget>
+                                    <type>graphprototype</type>
+                                    <x>12</x>
+                                    <width>12</width>
+                                    <height>32</height>
+                                    <fields>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>columns</name>
+                                            <value>1</value>
+                                        </field>
+                                        <field>
+                                            <type>GRAPH_PROTOTYPE</type>
+                                            <name>graphid</name>
+                                            <value>
+                                                <host>Template ZFS</host>
+                                                <name>zfs space efficiency {#ZFSDSNAME}</name>
+                                            </value>
+                                        </field>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>rows</name>
+                                            <value>16</value>
                                         </field>
                                     </fields>
                                 </widget>
@@ -1020,17 +1155,17 @@
                                             <value>1</value>
                                         </field>
                                         <field>
-                                            <type>INTEGER</type>
-                                            <name>rows</name>
-                                            <value>16</value>
-                                        </field>
-                                        <field>
                                             <type>GRAPH_PROTOTYPE</type>
                                             <name>graphid</name>
                                             <value>
                                                 <host>Template ZFS</host>
                                                 <name>zpool space {#ZFSPOOLNAME} ({#ZFSPOOLHEALTH})</name>
                                             </value>
+                                        </field>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>rows</name>
+                                            <value>16</value>
                                         </field>
                                     </fields>
                                 </widget>
@@ -1047,17 +1182,17 @@
                                             <value>1</value>
                                         </field>
                                         <field>
-                                            <type>INTEGER</type>
-                                            <name>rows</name>
-                                            <value>16</value>
-                                        </field>
-                                        <field>
                                             <type>GRAPH_PROTOTYPE</type>
                                             <name>graphid</name>
                                             <value>
                                                 <host>Template ZFS</host>
                                                 <name>zpool fragmentation {#ZFSPOOLNAME}</name>
                                             </value>
+                                        </field>
+                                        <field>
+                                            <type>INTEGER</type>
+                                            <name>rows</name>
+                                            <value>16</value>
                                         </field>
                                     </fields>
                                 </widget>
